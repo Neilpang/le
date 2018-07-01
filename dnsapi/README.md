@@ -876,6 +876,18 @@ acme.sh --issue --dns dns_tele3 -d example.com -d *.example.com
 ```
 
 The TELE3_Key and TELE3_Secret will be saved in ~/.acme.sh/account.conf and will be reused when needed.
+
+## 47. Use DNSEver (https://www.dnsever.com/)
+
+You will need your login credentials (ID+PW) to the DNSEver, and export them before you run acme.sh:
+```
+export DNSEVER_ID="KD-1234567"
+export DNSEVER_PW="cdfkjl3n2"
+
+acme.sh --issue --dns dns_dnsever -d example.com -d www.example.com
+```
+The DNSEVER_ID and DNSEVER_PW will be saved in ~/.acme.sh/account.conf and will be reused when needed.
+
 # Use custom API
 
 If your API is not supported yet, you can write your own DNS API.
