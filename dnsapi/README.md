@@ -993,6 +993,19 @@ and in rare cases I have seen over 5 minutes before google DNS catches it. There
 acme.sh --issue --dns dns_gdnsdk --dnssleep 300 -d example.com -d *.example.com
 ```
 
+## 53. Use Leaseweb API
+
+First you need to login to your Leaseweb account to set your API-KEY.
+https://secure.leaseweb.com
+
+```
+export Leaseweb_Key="MS2I4uPPaI..."
+
+acme.sh --issue --dns dns_leaseweb -d example.com -d *.example.com
+```
+
+The Leaseweb_Key will be saved in ~/.acme.sh/account.conf and will be reused when needed.
+
 # Use custom API
 
 If your API is not supported yet, you can write your own DNS API.
