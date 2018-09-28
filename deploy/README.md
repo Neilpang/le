@@ -296,3 +296,19 @@ You can then deploy the certificate as follows
 ```sh
 acme.sh --deploy -d www.mydomain.com --deploy-hook gitlab
 ```
+
+## 10. Deploy the cert to Hosteurope
+
+You must specify the credentials, the webserver and the directory:
+```sh
+export DEPLOY_HOSTEUROPE_Username="username"
+export DEPLOY_HOSTEUROPE_Password="password"
+export DEPLOY_HOSTEUROPE_WebServer="wp_id"
+export DEPLOY_HOSTEUROPE_Directory="v_id" #(enter 0 for global)
+```
+Note: If HOSTEUROPE_Username/HOSTEUROPE_Password are used if they are set and DEPLOY_HOSTEUROPE_Username/DEPLOY_HOSTEUROPE_Password are empty.
+
+Then you can deploy the certs
+```sh
+acme.sh --deploy -d example.com --deploy-hook hosteurope
+```
