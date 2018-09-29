@@ -13,10 +13,11 @@ dns_nsupdate_add() {
   _saveaccountconf NSUPDATE_SERVER "${NSUPDATE_SERVER}"
   _saveaccountconf NSUPDATE_SERVER_PORT "${NSUPDATE_SERVER_PORT}"
   _saveaccountconf NSUPDATE_KEY "${NSUPDATE_KEY}"
-  _info "adding ${fulldomain}. 60 in txt \"${txtvalue}\""
+  _savedomainconf NSUPDATE_SUFFIX "${NSUPDATE_SUFFIX}"
+  _info "adding ${fulldomain}${NSUPDATE_SUFFIX}. 60 in txt \"${txtvalue}\""
   nsupdate -k "${NSUPDATE_KEY}" <<EOF
 server ${NSUPDATE_SERVER}  ${NSUPDATE_SERVER_PORT} 
-update add ${fulldomain}. 60 in txt "${txtvalue}"
+update add ${fulldomain}${NSUPDATE_SUFFIX}. 60 in txt "${txtvalue}"
 send
 EOF
   if [ $? -ne 0 ]; then
@@ -36,7 +37,7 @@ dns_nsupdate_rm() {
   _info "removing ${fulldomain}. txt"
   nsupdate -k "${NSUPDATE_KEY}" <<EOF
 server ${NSUPDATE_SERVER}  ${NSUPDATE_SERVER_PORT} 
-update delete ${fulldomain}. txt
+update delete ${fulldomain}${NSUPDATE_SUFFIX}. txt
 send
 EOF
   if [ $? -ne 0 ]; then
@@ -50,6 +51,10 @@ EOF
 ####################  Private functions below ##################################
 
 _checkKeyFile() {
+  [ -n "${NSUPDATE_SERVER}" ] || NSUPDATE_SERVER="localhost"
+  if [ "${NSUPDATE_SERVER}" = "localhost" -a -z "${NSUPDATE_KEY}" ]; then
+    NSUPDATE_KEY=/var/run/named/session.key
+  fi
   if [ -z "${NSUPDATE_KEY}" ]; then
     _err "you must specify a path to the nsupdate key file"
     return 1
