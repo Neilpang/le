@@ -1012,6 +1012,20 @@ Now you can issue a certificate.
 
 ```sh
 acme.sh --issue --dns dns_namecheap -d example.com -d *.example.com
+
+
+## 48. Use Versio API
+
+First you've to add your ip address to the whitelist in your Versio portal. (Account > Versio API)
+Then set your credentials:
+```
+export VERSIO_Username="..."
+export VERSIO_Password="..."
+```
+
+Now you can issue your cert:
+```
+acme.sh --issue --dns dns_versio -d example.com -d www.example.com
 ```
 
 # Use custom API
