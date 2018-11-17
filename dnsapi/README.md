@@ -1014,6 +1014,21 @@ Now you can issue a certificate.
 acme.sh --issue --dns dns_namecheap -d example.com -d *.example.com
 ```
 
+## 46. Hosteurope
+
+Set the login credentials:
+```
+export HOSTEUROPE_Username="username"
+export HOSTEUROPE_Password="password"
+```
+
+And to issue a cert:
+```
+acme.sh --issue --dns dns_hosteurope -d example.com -d *.example.com
+```
+
+The username and password will be saved in `~/.acme.sh/account.conf` and will be reused when needed.
+
 # Use custom API
 
 If your API is not supported yet, you can write your own DNS API.
