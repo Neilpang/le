@@ -6,16 +6,29 @@
 dns_nsupdate_add() {
   fulldomain=$1
   txtvalue=$2
-  _checkKeyFile || return 1
+  basedomain=$(echo "$fulldomain" | sed -e 's/^.*\.\(.*\..*\)$/\1/')
   [ -n "${NSUPDATE_SERVER}" ] || NSUPDATE_SERVER="localhost"
   [ -n "${NSUPDATE_SERVER_PORT}" ] || NSUPDATE_SERVER_PORT=53
-  # save the dns server and key to the account conf file.
+  [ -n "${NSUPDATE_KEYDIR}" ] || NSUPDATE_KEYDIR="${LE_WORKING_DIR}/keys"
+  # save the dns server, keydir and key to the account conf file.
   _saveaccountconf NSUPDATE_SERVER "${NSUPDATE_SERVER}"
   _saveaccountconf NSUPDATE_SERVER_PORT "${NSUPDATE_SERVER_PORT}"
   _saveaccountconf NSUPDATE_KEY "${NSUPDATE_KEY}"
+  _saveaccountconf NSUPDATE_KEYDIR "${NSUPDATE_KEYDIR}"
+  # try to find a matching key
+  if [ -r "${NSUPDATE_KEYDIR}/${basedomain}.key" ]; then
+    NSUPDATE_KEY="${NSUPDATE_KEYDIR}/${basedomain}.key"
+    _info "using non default key ${NSUPDATE_KEYDIR}/${basedomain}.key"
+    # try to use the current SOA of the domain as nameserver
+    if [ -n "$(command -v host)" ]; then
+      NSUPDATE_SERVER="$(host -t SOA "${basedomain}" | cut -d ' ' -f5 | sed 's/\.$//')"
+      _info "using non default server ${NSUPDATE_SERVER}"
+    fi
+  fi
+  _checkKeyFile || return 1
   _info "adding ${fulldomain}. 60 in txt \"${txtvalue}\""
   nsupdate -k "${NSUPDATE_KEY}" <<EOF
-server ${NSUPDATE_SERVER}  ${NSUPDATE_SERVER_PORT} 
+server ${NSUPDATE_SERVER} ${NSUPDATE_SERVER_PORT} 
 update add ${fulldomain}. 60 in txt "${txtvalue}"
 send
 EOF
@@ -30,12 +43,24 @@ EOF
 #Usage: dns_nsupdate_rm   _acme-challenge.www.domain.com
 dns_nsupdate_rm() {
   fulldomain=$1
-  _checkKeyFile || return 1
+  basedomain=$(echo "$fulldomain" | sed -e 's/^.*\.\(.*\..*\)$/\1/')
   [ -n "${NSUPDATE_SERVER}" ] || NSUPDATE_SERVER="localhost"
   [ -n "${NSUPDATE_SERVER_PORT}" ] || NSUPDATE_SERVER_PORT=53
+  [ -n "${NSUPDATE_KEYDIR}" ] || NSUPDATE_KEYDIR="${LE_WORKING_DIR}/keys"
+  # try to find a matching key
+  if [ -r "${NSUPDATE_KEYDIR}/${basedomain}.key" ]; then
+    NSUPDATE_KEY="${NSUPDATE_KEYDIR}/${basedomain}.key"
+    _info "using non default key ${NSUPDATE_KEYDIR}/${basedomain}.key"
+    # try to use the current SOA of the domain as nameserver
+    if [ -n "$(command -v host)" ]; then
+      NSUPDATE_SERVER="$(host -t SOA "${basedomain}" | cut -d ' ' -f5 | sed 's/\.$//')"
+      _info "using non default server ${NSUPDATE_SERVER}"
+    fi
+  fi
+  _checkKeyFile || return 1
   _info "removing ${fulldomain}. txt"
   nsupdate -k "${NSUPDATE_KEY}" <<EOF
-server ${NSUPDATE_SERVER}  ${NSUPDATE_SERVER_PORT} 
+server ${NSUPDATE_SERVER} ${NSUPDATE_SERVER_PORT} 
 update delete ${fulldomain}. txt
 send
 EOF
