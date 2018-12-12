@@ -7,6 +7,7 @@ RUN apk update -f \
   bind-tools \
   curl \
   socat \
+  bind-tools \
   && rm -rf /var/cache/apk/*
 
 ENV LE_CONFIG_HOME /acme.sh
