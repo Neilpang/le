@@ -1259,6 +1259,22 @@ acme.sh --issue --dns dns_online -d example.com -d www.example.com
 
 `ONLINE_API_KEY` will be saved in `~/.acme.sh/account.conf` and will be reused when needed.
 
+## 53. Use Clodo.ru domain API
+
+Get your API token at Clodo CP (https://panel.clodo.ru)
+
+```
+export CLODO_Key="sdfsdfsdfljlbjkljlkjsdfoiwje"
+export CLODO_User="jdoe@example.com"
+```
+
+To issue a cert:
+```
+acme.sh --issue --dns dns_clodo -d example.com -d www.example.com
+```
+
+The `CLODO_Key` and `CLODO_User` will be saved in `~/.acme.sh/account.conf` and will be reused when needed.
+
 # Use custom API
 
 If your API is not supported yet, you can write your own DNS API.
