@@ -1842,7 +1842,7 @@ _send_signed_request() {
 
       _debug2 _headers "$_headers"
 
-      _CACHED_NONCE="$(echo "$_headers" | grep "Replay-Nonce:" | _head_n 1 | tr -d "\r\n " | cut -d ':' -f 2)"
+      _CACHED_NONCE="$(echo "$_headers" | grep -i "Replay-Nonce:" | _head_n 1 | tr -d "\r\n " | cut -d ':' -f 2)"
       _debug2 _CACHED_NONCE "$_CACHED_NONCE"
     else
       _debug2 "Use _CACHED_NONCE" "$_CACHED_NONCE"
@@ -3269,7 +3269,7 @@ _regAccount() {
   fi
 
   _debug2 responseHeaders "$responseHeaders"
-  _accUri="$(echo "$responseHeaders" | grep "^Location:" | _head_n 1 | cut -d ' ' -f 2 | tr -d "\r\n")"
+  _accUri="$(echo "$responseHeaders" | grep -i "^Location:" | _head_n 1 | cut -d ' ' -f 2 | tr -d "\r\n")"
   _debug "_accUri" "$_accUri"
   if [ -z "$_accUri" ]; then
     _err "Can not find account id url."
@@ -4216,6 +4216,16 @@ $_authorizations_map"
       _on_issue_err "$_post_hook"
       return 1
     fi
+
+    Le_LinkLoc="$(grep -i '^Location.*$' "$HTTP_HEADER" | _tail_n 1 | tr -d "\r\n" | cut -d " " -f 2)"
+    response="$(_get "$Le_LinkLoc")"
+    if [ "$ret" != "0" ]; then
+      _err "Cannot get Order Location:$Le_LinkLoc"
+      _err "$response"
+      _on_issue_err "$_post_hook"
+      return 1
+    fi
+
     Le_LinkCert="$(echo "$response" | tr -d '\r\n' | _egrep_o '"certificate" *: *"[^"]*"' | cut -d '"' -f 4)"
 
     _tempSignedResponse="$response"
@@ -5053,7 +5063,7 @@ _deactivate() {
       return 1
     fi
 
-    authzUri="$(echo "$responseHeaders" | grep "^Location:" | _head_n 1 | cut -d ' ' -f 2 | tr -d "\r\n")"
+    authzUri="$(echo "$responseHeaders" | grep -i "^Location:" | _head_n 1 | cut -d ' ' -f 2 | tr -d "\r\n")"
     _debug "authzUri" "$authzUri"
     if [ "$code" ] && [ ! "$code" = '201' ]; then
       _err "new-authz error: $response"
