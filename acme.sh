@@ -4989,6 +4989,11 @@ renew() {
     return $RENEW_SKIP
   fi
 
+  # allow overriding domain-config
+  if [ -n "$_renew_hook" ]; then
+    Le_RenewHook="$_renew_hook"
+  fi
+
   IS_RENEW="1"
   Le_ReloadCmd="$(_readdomainconf Le_ReloadCmd)"
   Le_PreHook="$(_readdomainconf Le_PreHook)"
