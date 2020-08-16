@@ -1375,15 +1375,16 @@ toPkcs() {
   domain="$1"
   pfxPassword="$2"
   if [ -z "$domain" ]; then
-    _usage "Usage: $PROJECT_ENTRY --toPkcs -d domain [--password pfx-password]"
+    _usage "Usage: $PROJECT_ENTRY --toPkcs -d domain [--password pfx-password] [--pfx-name pfx-name]"
     return 1
   fi
 
   _isEcc="$3"
+  pfxName="$4"
 
   _initpath "$domain" "$_isEcc"
 
-  _toPkcs "$CERT_PFX_PATH" "$CERT_KEY_PATH" "$CERT_PATH" "$CA_CERT_PATH" "$pfxPassword"
+  _toPkcs "$CERT_PFX_PATH" "$CERT_KEY_PATH" "$CERT_PATH" "$CA_CERT_PATH" "$pfxPassword" "$pfxName"
 
   if [ "$?" = "0" ]; then
     _info "Success, Pfx is exported to: $CERT_PFX_PATH"
@@ -6726,6 +6727,7 @@ _process() {
   _fullchain_file=""
   _reloadcmd=""
   _password=""
+  _pfx_name="1"
   _accountconf=""
   _useragent=""
   _accountemail=""
@@ -7028,6 +7030,10 @@ _process() {
         ;;
       --password)
         _password="$2"
+        shift
+        ;;
+      --pfx-name)
+        _pfx_name="$2"
         shift
         ;;
       --accountconf)
@@ -7371,7 +7377,7 @@ _process() {
     uninstallcronjob) uninstallcronjob ;;
     cron) cron ;;
     toPkcs)
-      toPkcs "$_domain" "$_password" "$_ecc"
+      toPkcs "$_domain" "$_password" "$_ecc" "$_pfx_name"
       ;;
     toPkcs8)
       toPkcs8 "$_domain" "$_ecc"
