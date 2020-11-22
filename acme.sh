@@ -6094,15 +6094,18 @@ install() {
     LE_WORKING_DIR="$DEFAULT_INSTALL_HOME"
   fi
 
-  _nocron="$1"
+  _nocron="${NOCRON:-$1}"
   _c_home="$2"
-  _noprofile="$3"
+  _noprofile="${NOPROFILE:-$3}"
   if ! _initpath; then
     _err "Install failed."
     return 1
   fi
   if [ "$_nocron" ]; then
     _debug "Skip install cron job"
+  fi
+  if [ "$_noprofile" ]; then
+    _debug "Skip install aliases"
   fi
 
   if [ "$_ACME_IN_CRON" != "1" ]; then
@@ -6547,8 +6550,23 @@ Parameters:
 # nocron noprofile
 _installOnline() {
   _info "Installing from online archive."
-  _nocron="$1"
-  _noprofile="$2"
+
+  if ! _startswith "$1" "-"; then
+    if [ -n "$1" ]; then
+      set "$@" "--nocron"
+    fi
+
+    shift
+
+    if ! _startswith "$1" "-"; then
+      if [ -n "$1" ]; then
+        set "$@" "--noprofile"
+      fi
+
+      shift
+    fi
+  fi
+
   if [ ! "$BRANCH" ]; then
     BRANCH="master"
   fi
@@ -6569,7 +6587,7 @@ _installOnline() {
 
     cd "$PROJECT_NAME-$BRANCH"
     chmod +x $PROJECT_ENTRY
-    if ./$PROJECT_ENTRY install "$_nocron" "" "$_noprofile"; then
+    if ./$PROJECT_ENTRY --install "$@"; then
       _info "Install success!"
       _initpath
       _saveaccountconf "UPGRADE_HASH" "$(_getUpgradeHash)"
@@ -6605,7 +6623,7 @@ upgrade() {
     [ -z "$FORCE" ] && [ "$(_getUpgradeHash)" = "$(_readaccountconf "UPGRADE_HASH")" ] && _info "Already uptodate!" && exit 0
     export LE_WORKING_DIR
     cd "$LE_WORKING_DIR"
-    _installOnline "nocron" "noprofile"
+    _installOnline "nocron" "" "noprofile"
   ); then
     _info "Upgrade success!"
     exit 0
@@ -7442,7 +7460,7 @@ _process() {
 
 if [ "$INSTALLONLINE" ]; then
   INSTALLONLINE=""
-  _installOnline
+  _installOnline "$@"
   exit
 fi
 
