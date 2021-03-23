@@ -51,6 +51,11 @@ vault_cli_deploy() {
 
   if [ -n "$FABIO" ]; then
     $VAULT_CMD write "${VAULT_PREFIX}/${_cdomain}" cert=@"$_cfullchain" key=@"$_ckey" || return 1
+  elif [ -n "$VAULT_KV_V2" ]; then
+    $VAULT_CMD kv put "${VAULT_PREFIX}/${_cdomain}" cert=@"$_ccert" \
+      key=@"$_ckey" \
+      chain=@"$_cca" \
+      fullchain=@"$_cfullchain" || return 1
   else
     $VAULT_CMD write "${VAULT_PREFIX}/${_cdomain}/cert.pem" value=@"$_ccert" || return 1
     $VAULT_CMD write "${VAULT_PREFIX}/${_cdomain}/cert.key" value=@"$_ckey" || return 1
